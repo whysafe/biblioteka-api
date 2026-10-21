@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: biblioteka-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/biblioteka}
+    username: ${DB_USER:biblioteka}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  mvc:
+    problemdetails:
+      enabled: true
+  data:
+    web:
+      pageable:
+        max-page-size: 100
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:}
+    ttl: ${JWT_TTL:PT12H}
+  bootstrap:
+    librarian-email: ${LIBRARIAN_EMAIL:}
+    librarian-password: ${LIBRARIAN_PASSWORD:}
+  library:
+    max-active-loans: 5
+    loan-days: 14
+    renewal-days: 14
+    max-renewals: 2
+    fine-per-day: 10.00
+    max-fine: 500.00
+    hold-days: 3
+    expire-holds-cron: "0 5 0 * * *"

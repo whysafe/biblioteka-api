@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: biblioteka
+      POSTGRES_USER: biblioteka
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?задайте DB_PASSWORD в .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biblioteka -d biblioteka"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/biblioteka
+      DB_USER: biblioteka
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?задайте JWT_SECRET в .env}
+      JWT_TTL: ${JWT_TTL:-PT12H}
+      LIBRARIAN_EMAIL: ${LIBRARIAN_EMAIL:-}
+      LIBRARIAN_PASSWORD: ${LIBRARIAN_PASSWORD:-}
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:
