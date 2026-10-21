@@ -37,6 +37,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/books", "/api/books/*").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health", "/error").permitAll()
+                        // Права библиотекаря проверяются ещё здесь, до чтения и валидации тела запроса:
+                        // читатель получает 403, а не 400 за пустое тело. @PreAuthorize в контроллерах остаётся.
+                        .requestMatchers(HttpMethod.POST, "/api/books").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/*").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/books/*/queue").hasRole("LIBRARIAN")
+                        .requestMatchers("/api/readers/me").authenticated()
+                        .requestMatchers("/api/readers", "/api/readers/*").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.POST, "/api/loans/*/return", "/api/loans/*/pay-fine").hasRole("LIBRARIAN")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> writeProblem(res, mapper,
